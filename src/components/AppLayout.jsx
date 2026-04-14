@@ -1,14 +1,14 @@
 import { Outlet } from 'react-router-dom';
-import { PagesProvider } from '../contexts/PagesContext';
-import Sidebar from './Sidebar';
+import { PostsProvider } from '../contexts/PostsContext';
+import Header from './Header';
 
 export default function AppLayout() {
   return (
-    <PagesProvider>
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar />
+    <PostsProvider>
+      <div className="min-h-screen bg-white">
+        <Header />
         <Outlet />
       </div>
-    </PagesProvider>
+    </PostsProvider>
   );
 }

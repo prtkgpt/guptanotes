@@ -1,22 +1,36 @@
 # GuptaNotes
 
-A lightweight Notion clone built with React, TipTap, and Supabase.
+A personal timeline app for documenting your thoughts, photos, videos, check-ins, and voice notes. Like Twitter, but just for you.
 
 ## Tech Stack
 
 - **React + Vite** — Fast dev server and builds
-- **TipTap** — Rich text editor with slash commands
-- **Supabase** — Auth, Postgres database, Row Level Security
+- **Supabase** — Auth, Postgres database, file storage
 - **Tailwind CSS** — Utility-first styling
 - **Vercel** — Deployment
+
+## Features
+
+- Email/password authentication
+- Post types: text, images, videos, voice notes, check-ins
+- Single chronological timeline (newest first)
+- Voice recording directly in browser (MediaRecorder API)
+- GPS check-ins with Google Maps link
+- Image and video uploads to Supabase Storage
+- Auto-expanding text with "Show more" for long posts
+- Delete posts with confirmation dialog
+- Cursor-based pagination ("Load more")
+- Mobile-friendly responsive design
 
 ## Setup
 
 ### 1. Create a Supabase Project
 
 1. Go to [supabase.com](https://supabase.com) and create a new project
-2. Open the SQL Editor and run the contents of `supabase/schema.sql`
-3. Copy your project URL and anon key from Settings > API
+2. Open the SQL Editor and run `supabase/schema.sql`
+3. Create a **Storage bucket** named `media` with public access enabled
+4. Add storage RLS policies (see comments in `schema.sql`)
+5. Copy your project URL and anon key from Settings > API
 
 ### 2. Configure Environment
 
@@ -47,12 +61,12 @@ Open [http://localhost:5173](http://localhost:5173).
 3. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment variables
 4. Deploy — Vercel auto-detects Vite
 
-## Features
+## Post Types
 
-- Email/password authentication
-- Nested page tree with drag-and-drop
-- Rich text editor with slash command menu (`/`)
-- Auto-save (debounced 2s)
-- Block types: headings, lists, to-dos, code blocks, dividers
-- Right-click context menu for delete/sub-pages
-- Clean, minimal UI inspired by Notion
+| Type | What it does |
+|------|-------------|
+| Text | Short thoughts or longer notes |
+| Image | Photo with optional caption |
+| Video | Short video with optional caption |
+| Voice | Audio recording with playback |
+| Check-in | Location name with optional GPS coordinates |
