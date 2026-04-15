@@ -27,7 +27,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f7f7f5]">
       <div className="w-full max-w-sm p-8 bg-white rounded-lg shadow-sm">
-        <h1 className="text-2xl font-bold text-center mb-6">Log in to GuptaNotes</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">Log in to Yap</h1>
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded">{error}</div>
         )}

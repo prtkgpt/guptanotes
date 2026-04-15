@@ -1,4 +1,4 @@
-const CACHE_NAME = 'guptanotes-v1';
+const CACHE_NAME = 'yap-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
