@@ -8,10 +8,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #fff;
+  /* iOS safe area padding */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Textarea auto-resize helper */
@@ -22,4 +28,19 @@ textarea {
 /* Audio element styling */
 audio::-webkit-media-controls-panel {
   background: transparent;
+}
+
+/* Prevent iOS text size adjustment */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Smooth scrolling on iOS */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Bottom safe area for post composer and scrolling */
+main {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
 }
