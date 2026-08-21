@@ -1,5 +1,10 @@
 # GuptaNotes
 
+> **📱 New: Gupta Notes mobile app** — a native note-taking app for iPhone and Android
+> (React Native + Expo) lives in [`mobile/`](mobile/README.md). Feature research and
+> design inspiration from top-rated note apps is documented in
+> [`docs/NOTES-APP-BRAINSTORM.md`](docs/NOTES-APP-BRAINSTORM.md).
+
 A personal timeline app for documenting your thoughts, photos, videos, check-ins, and voice notes. Like Twitter, but just for you.
 
 ## Tech Stack
