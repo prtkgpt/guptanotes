@@ -29,6 +29,22 @@ export interface ChecklistItem {
   done: boolean;
 }
 
+export interface ImageAttachment {
+  id: string;
+  /** file:// URI inside the app's document directory */
+  uri: string;
+  width: number;
+  height: number;
+}
+
+export interface VoiceAttachment {
+  id: string;
+  /** file:// URI inside the app's document directory */
+  uri: string;
+  durationMs: number;
+  createdAt: number;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -38,6 +54,12 @@ export interface Note {
   color: NoteColor;
   pinned: boolean;
   status: NoteStatus;
+  images: ImageAttachment[];
+  voice: VoiceAttachment[];
+  /** epoch ms of a scheduled reminder, or null */
+  reminderAt: number | null;
+  /** id of the scheduled OS notification, so it can be cancelled */
+  reminderNotificationId: string | null;
   createdAt: number;
   updatedAt: number;
 }

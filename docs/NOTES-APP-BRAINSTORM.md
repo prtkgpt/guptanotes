@@ -34,10 +34,20 @@ Google Keep, Bear, Obsidian, OneNote, Notion, UpNote).
 11. Word & character count and "edited …" timestamp in the editor.
 12. Local-first storage: SQLite on device, works fully offline, no account.
 
-## Future ideas (not in v1)
-- Reminders/notifications per note (Keep), note locking with biometrics (Apple Notes),
-  images & drawing, voice notes with transcription, optional cloud sync (Supabase — the
-  repo's web stack), note linking (Obsidian), widgets, AI summaries.
+## v2 additions (implemented)
+13. Reminders per note (Keep): local notifications with quick presets and a custom
+    date/time picker; tapping the notification opens the note.
+14. Image attachments (Keep/Apple Notes): camera or library, card thumbnails,
+    full-screen viewer.
+15. Voice notes (Apple Notes / the repo's web app): in-editor recording with playback.
+16. Optional Supabase sync matching the web stack: email/password auth,
+    last-write-wins merge with tombstones, fully offline-capable. Attachments stay
+    on-device in v2.
+
+## Future ideas
+- Note locking with biometrics (Apple Notes), drawing/sketching, voice transcription,
+  attachment upload to Supabase Storage, note linking (Obsidian), home-screen widgets,
+  AI summaries.
 
 ## Design language
 - Keep-inspired card grid, Bear-inspired editor: no chrome while writing, controls fade to the edges.

@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TagFilterBar } from '../components/FilterBar';
 import { NoteCard } from '../components/NoteCard';
+import { SyncSheet } from '../components/SyncSheet';
 import { allTags, hasTag, matchesSearch, sortNotes } from '../lib/noteUtils';
 import { useNotes } from '../store/NotesContext';
 import type { Note, NoteStatus, SortMode } from '../types';
@@ -52,13 +53,19 @@ export function NotesListScreen({ onOpenNote, onCreateNote }: Props) {
     themePreference,
     setThemePreference,
     updateNote,
+    setNoteStatus,
     deleteForever,
     emptyTrash,
+    syncConfigured,
+    session,
+    syncing,
+    syncError,
   } = useNotes();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [folder, setFolder] = useState<NoteStatus>('active');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [showSync, setShowSync] = useState(false);
 
   const folderNotes = useMemo(
     () => notes.filter((note) => note.status === folder),
@@ -112,31 +119,31 @@ export function NotesListScreen({ onOpenNote, onCreateNote }: Props) {
         },
         {
           text: 'Archive',
-          onPress: () => updateNote(note.id, { status: 'archived' as const, pinned: false }),
+          onPress: () => setNoteStatus(note.id, 'archived'),
         },
         {
           text: 'Move to Trash',
           style: 'destructive' as const,
-          onPress: () => updateNote(note.id, { status: 'trashed' as const, pinned: false }),
+          onPress: () => setNoteStatus(note.id, 'trashed'),
         },
       );
     } else if (note.status === 'archived') {
       buttons.push(
         {
           text: 'Unarchive',
-          onPress: () => updateNote(note.id, { status: 'active' as const }),
+          onPress: () => setNoteStatus(note.id, 'active'),
         },
         {
           text: 'Move to Trash',
           style: 'destructive' as const,
-          onPress: () => updateNote(note.id, { status: 'trashed' as const }),
+          onPress: () => setNoteStatus(note.id, 'trashed'),
         },
       );
     } else {
       buttons.push(
         {
           text: 'Restore',
-          onPress: () => updateNote(note.id, { status: 'active' as const }),
+          onPress: () => setNoteStatus(note.id, 'active'),
         },
         {
           text: 'Delete forever',
@@ -179,6 +186,23 @@ export function NotesListScreen({ onOpenNote, onCreateNote }: Props) {
       <View style={styles.header}>
         <Text style={[styles.appTitle, { color: theme.text }]}>Gupta Notes</Text>
         <View style={styles.headerActions}>
+          {syncConfigured && (
+            <TouchableOpacity onPress={() => setShowSync(true)} hitSlop={8}>
+              <Ionicons
+                name={
+                  syncError
+                    ? 'cloud-offline-outline'
+                    : session
+                      ? syncing
+                        ? 'sync-outline'
+                        : 'cloud-done-outline'
+                      : 'cloud-outline'
+                }
+                size={22}
+                color={syncError ? theme.danger : theme.textSecondary}
+              />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={cycleTheme} hitSlop={8}>
             <Ionicons name={themeIcon} size={22} color={theme.textSecondary} />
           </TouchableOpacity>
@@ -356,6 +380,8 @@ export function NotesListScreen({ onOpenNote, onCreateNote }: Props) {
           </TouchableOpacity>
         </View>
       )}
+
+      <SyncSheet visible={showSync} onClose={() => setShowSync(false)} />
     </View>
   );
 }

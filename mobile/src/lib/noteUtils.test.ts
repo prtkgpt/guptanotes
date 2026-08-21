@@ -25,11 +25,27 @@ function makeNote(overrides: Partial<Note> = {}): Note {
     color: 'default',
     pinned: false,
     status: 'active',
+    images: [],
+    voice: [],
+    reminderAt: null,
+    reminderNotificationId: null,
     createdAt: 1000,
     updatedAt: 1000,
     ...overrides,
   };
 }
+
+test('isEmptyNote counts attachments and reminders as content', () => {
+  assert.ok(
+    !isEmptyNote(makeNote({ images: [{ id: '1', uri: 'file://x.jpg', width: 1, height: 1 }] })),
+  );
+  assert.ok(
+    !isEmptyNote(
+      makeNote({ voice: [{ id: '1', uri: 'file://x.m4a', durationMs: 100, createdAt: 1 }] }),
+    ),
+  );
+  assert.ok(!isEmptyNote(makeNote({ reminderAt: 123 })));
+});
 
 test('extractTags finds inline hashtags, dedupes, lowercases', () => {
   const note = makeNote({

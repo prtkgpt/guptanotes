@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -16,14 +17,24 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChecklistEditor } from '../components/ChecklistEditor';
 import { ColorPicker } from '../components/ColorPicker';
+import { ImageStrip } from '../components/ImageStrip';
+import { ReminderPicker } from '../components/ReminderPicker';
+import { VoiceClipList, VoiceRecorder } from '../components/VoiceNotes';
+import {
+  deleteAttachmentQuiet,
+  extensionFromUri,
+  importAttachment,
+} from '../lib/attachments';
 import {
   bodyToChecklist,
   checklistToBody,
   displayTitle,
   extractTags,
   formatRelativeTime,
+  makeId,
   wordCount,
 } from '../lib/noteUtils';
+import { formatReminderTime } from '../lib/reminders';
 import { noteBackground } from '../theme';
 import { useNotes } from '../store/NotesContext';
 
@@ -33,9 +44,11 @@ interface Props {
 }
 
 export function EditorScreen({ noteId, onClose }: Props) {
-  const { notes, theme, updateNote, deleteForever, discardIfEmpty } = useNotes();
+  const { notes, theme, updateNote, setNoteStatus, setReminder, deleteForever, discardIfEmpty } =
+    useNotes();
   const insets = useSafeAreaInsets();
   const [showColors, setShowColors] = useState(false);
+  const [showReminder, setShowReminder] = useState(false);
   const note = notes.find((n) => n.id === noteId);
 
   const close = () => {
@@ -69,6 +82,7 @@ export function EditorScreen({ noteId, onClose }: Props) {
   const bg = noteBackground(note.color, theme);
   const bodyText = note.checklist ? checklistToBody(note.checklist) : note.body;
   const words = wordCount(`${note.title} ${bodyText}`);
+  const reminderOverdue = note.reminderAt !== null && note.reminderAt < Date.now();
 
   const toggleChecklist = () => {
     if (note.checklist) {
@@ -76,6 +90,63 @@ export function EditorScreen({ noteId, onClose }: Props) {
     } else {
       updateNote(note.id, { checklist: bodyToChecklist(note.body), body: '' });
     }
+  };
+
+  const addImages = async (fromCamera: boolean) => {
+    try {
+      let result: ImagePicker.ImagePickerResult;
+      if (fromCamera) {
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permission.granted) {
+          Alert.alert('Camera needed', 'Allow camera access to take photos.');
+          return;
+        }
+        result = await ImagePicker.launchCameraAsync({ quality: 0.85 });
+      } else {
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          quality: 0.85,
+          allowsMultipleSelection: true,
+          selectionLimit: 8,
+        });
+      }
+      if (result.canceled) return;
+      const added = result.assets.map((asset) => ({
+        id: makeId(),
+        uri: importAttachment(asset.uri, extensionFromUri(asset.uri, 'jpg')),
+        width: asset.width ?? 0,
+        height: asset.height ?? 0,
+      }));
+      updateNote(note.id, { images: [...note.images, ...added] });
+    } catch (error) {
+      console.warn('Failed to add image', error);
+      Alert.alert('Could not add image', 'Something went wrong picking the image.');
+    }
+  };
+
+  const promptAddImage = () => {
+    Alert.alert(
+      'Add image',
+      undefined,
+      [
+        { text: 'Take photo', onPress: () => addImages(true) },
+        { text: 'Choose from library', onPress: () => addImages(false) },
+        ...(Platform.OS === 'ios' ? [{ text: 'Cancel', style: 'cancel' as const }] : []),
+      ],
+      { cancelable: true },
+    );
+  };
+
+  const removeImage = (imageId: string) => {
+    const image = note.images.find((i) => i.id === imageId);
+    if (image) deleteAttachmentQuiet(image.uri);
+    updateNote(note.id, { images: note.images.filter((i) => i.id !== imageId) });
+  };
+
+  const removeVoice = (clipId: string) => {
+    const clip = note.voice.find((c) => c.id === clipId);
+    if (clip) deleteAttachmentQuiet(clip.uri);
+    updateNote(note.id, { voice: note.voice.filter((c) => c.id !== clipId) });
   };
 
   const shareNote = async () => {
@@ -101,6 +172,16 @@ export function EditorScreen({ noteId, onClose }: Props) {
     ]);
   };
 
+  const onSetReminder = async (when: number | null) => {
+    const ok = await setReminder(note.id, when);
+    if (!ok && when !== null) {
+      Alert.alert(
+        'Reminder not set',
+        'Notifications are unavailable. Check notification permissions (on Android, reminders need a development build rather than Expo Go).',
+      );
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: bg }]}
@@ -114,6 +195,16 @@ export function EditorScreen({ noteId, onClose }: Props) {
         <View style={styles.topActions}>
           {!inTrash && (
             <>
+              <TouchableOpacity onPress={() => setShowReminder(true)} hitSlop={8}>
+                <Ionicons
+                  name={note.reminderAt ? 'notifications' : 'notifications-outline'}
+                  size={22}
+                  color={note.reminderAt ? theme.accent : theme.textSecondary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowColors((v) => !v)} hitSlop={8}>
+                <Ionicons name="color-palette-outline" size={22} color={theme.textSecondary} />
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => updateNote(note.id, { pinned: !note.pinned })}
                 hitSlop={8}
@@ -123,44 +214,6 @@ export function EditorScreen({ noteId, onClose }: Props) {
                   size={22}
                   color={note.pinned ? theme.accent : theme.textSecondary}
                 />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowColors((v) => !v)} hitSlop={8}>
-                <Ionicons name="color-palette-outline" size={22} color={theme.textSecondary} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={toggleChecklist} hitSlop={8}>
-                <Ionicons
-                  name={note.checklist ? 'document-text-outline' : 'checkbox-outline'}
-                  size={22}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={shareNote} hitSlop={8}>
-                <Ionicons name="share-outline" size={22} color={theme.textSecondary} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  updateNote(note.id, {
-                    status: note.status === 'archived' ? 'active' : 'archived',
-                    pinned: false,
-                  });
-                  onClose();
-                }}
-                hitSlop={8}
-              >
-                <Ionicons
-                  name={note.status === 'archived' ? 'arrow-up-circle-outline' : 'archive-outline'}
-                  size={22}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  updateNote(note.id, { status: 'trashed', pinned: false });
-                  onClose();
-                }}
-                hitSlop={8}
-              >
-                <Ionicons name="trash-outline" size={22} color={theme.textSecondary} />
               </TouchableOpacity>
             </>
           )}
@@ -183,7 +236,7 @@ export function EditorScreen({ noteId, onClose }: Props) {
             This note is in the Trash
           </Text>
           <View style={styles.trashActions}>
-            <TouchableOpacity onPress={() => updateNote(note.id, { status: 'active' })}>
+            <TouchableOpacity onPress={() => setNoteStatus(note.id, 'active')}>
               <Text style={[styles.trashAction, { color: theme.accent }]}>Restore</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={confirmDeleteForever}>
@@ -195,9 +248,34 @@ export function EditorScreen({ noteId, onClose }: Props) {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 60 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: 24 }]}
         keyboardShouldPersistTaps="handled"
       >
+        {note.reminderAt !== null && (
+          <TouchableOpacity
+            onPress={() => !inTrash && setShowReminder(true)}
+            style={[
+              styles.reminderChip,
+              { backgroundColor: theme.chipBg, borderColor: theme.surfaceBorder },
+            ]}
+          >
+            <Ionicons
+              name="alarm-outline"
+              size={14}
+              color={reminderOverdue ? theme.danger : theme.textSecondary}
+            />
+            <Text
+              style={[
+                styles.reminderChipText,
+                { color: reminderOverdue ? theme.danger : theme.textSecondary },
+              ]}
+            >
+              {formatReminderTime(note.reminderAt)}
+              {reminderOverdue ? ' (past)' : ''}
+            </Text>
+          </TouchableOpacity>
+        )}
+
         <TextInput
           value={note.title}
           onChangeText={(title) => updateNote(note.id, { title })}
@@ -207,6 +285,18 @@ export function EditorScreen({ noteId, onClose }: Props) {
           multiline
           style={[styles.titleInput, { color: theme.text }]}
         />
+
+        <ImageStrip
+          images={note.images}
+          onRemove={inTrash ? undefined : removeImage}
+          theme={theme}
+        />
+        <VoiceClipList
+          clips={note.voice}
+          onRemove={inTrash ? undefined : removeVoice}
+          theme={theme}
+        />
+
         {note.checklist ? (
           <ChecklistEditor
             items={note.checklist}
@@ -229,18 +319,74 @@ export function EditorScreen({ noteId, onClose }: Props) {
         )}
       </ScrollView>
 
-      {/* Footer */}
-      <View
-        style={[
-          styles.footer,
-          { paddingBottom: insets.bottom + 10, borderTopColor: theme.divider },
-        ]}
-      >
+      {/* Bottom toolbar + footer */}
+      {!inTrash && (
+        <View style={[styles.bottomBar, { borderTopColor: theme.divider }]}>
+          <VoiceRecorder
+            theme={theme}
+            onRecorded={(clip) => updateNote(note.id, { voice: [...note.voice, clip] })}
+          >
+            {(startRecording) => (
+              <View style={styles.toolRow}>
+                <TouchableOpacity onPress={toggleChecklist} hitSlop={8}>
+                  <Ionicons
+                    name={note.checklist ? 'document-text-outline' : 'checkbox-outline'}
+                    size={22}
+                    color={theme.textSecondary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={promptAddImage} hitSlop={8}>
+                  <Ionicons name="image-outline" size={22} color={theme.textSecondary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={startRecording} hitSlop={8}>
+                  <Ionicons name="mic-outline" size={22} color={theme.textSecondary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={shareNote} hitSlop={8}>
+                  <Ionicons name="share-outline" size={22} color={theme.textSecondary} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setNoteStatus(note.id, note.status === 'archived' ? 'active' : 'archived');
+                    onClose();
+                  }}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name={
+                      note.status === 'archived' ? 'arrow-up-circle-outline' : 'archive-outline'
+                    }
+                    size={22}
+                    color={theme.textSecondary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setNoteStatus(note.id, 'trashed');
+                    onClose();
+                  }}
+                  hitSlop={8}
+                >
+                  <Ionicons name="trash-outline" size={22} color={theme.textSecondary} />
+                </TouchableOpacity>
+              </View>
+            )}
+          </VoiceRecorder>
+        </View>
+      )}
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 10 }]}>
         <Text numberOfLines={1} style={[styles.footerText, { color: theme.textTertiary }]}>
           {tags.length > 0 ? tags.map((t) => `#${t}`).join(' ') + '  ·  ' : ''}
           {words} {words === 1 ? 'word' : 'words'} · edited {formatRelativeTime(note.updatedAt)}
         </Text>
       </View>
+
+      <ReminderPicker
+        visible={showReminder}
+        current={note.reminderAt}
+        onClose={() => setShowReminder(false)}
+        onSet={onSetReminder}
+        theme={theme}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -258,7 +404,7 @@ const styles = StyleSheet.create({
   },
   topActions: {
     flexDirection: 'row',
-    gap: 18,
+    gap: 20,
     alignItems: 'center',
   },
   colorRow: {
@@ -291,6 +437,21 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
   },
+  reminderChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    borderRadius: 14,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginTop: 2,
+  },
+  reminderChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
   titleInput: {
     fontSize: 24,
     fontWeight: '700',
@@ -300,12 +461,20 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 26,
     paddingTop: 4,
-    minHeight: 240,
+    minHeight: 200,
   },
-  footer: {
+  bottomBar: {
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingVertical: 10,
+  },
+  toolRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  footer: {
+    paddingHorizontal: 20,
   },
   footerText: {
     fontSize: 12,

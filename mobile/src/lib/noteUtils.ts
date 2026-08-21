@@ -80,8 +80,13 @@ export function displayTitle(note: Note): string {
   return firstLine ?? 'Untitled';
 }
 
-export function isEmptyNote(note: Pick<Note, 'title' | 'body' | 'checklist'>): boolean {
+export function isEmptyNote(
+  note: Pick<Note, 'title' | 'body' | 'checklist'> &
+    Partial<Pick<Note, 'images' | 'voice' | 'reminderAt'>>,
+): boolean {
   if (note.title.trim()) return false;
+  if ((note.images?.length ?? 0) > 0 || (note.voice?.length ?? 0) > 0) return false;
+  if (note.reminderAt != null) return false;
   if (note.checklist) return note.checklist.every((item) => !item.text.trim());
   return !note.body.trim();
 }

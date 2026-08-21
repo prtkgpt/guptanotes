@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { checklistProgress, extractTags, snippet } from '../lib/noteUtils';
+import { formatReminderTime } from '../lib/reminders';
 import { noteBackground, Theme } from '../theme';
 import type { Note } from '../types';
 
@@ -40,6 +41,17 @@ export function NoteCard({ note, theme, grid, onPress, onLongPress }: Props) {
         },
       ]}
     >
+      {note.images.length > 0 && (
+        <View style={styles.imageWrap}>
+          <Image source={{ uri: note.images[0].uri }} style={styles.image} />
+          {note.images.length > 1 && (
+            <View style={styles.imageCount}>
+              <Text style={styles.imageCountText}>+{note.images.length - 1}</Text>
+            </View>
+          )}
+        </View>
+      )}
+
       {note.pinned && (
         <Ionicons name="pin" size={14} color={theme.textTertiary} style={styles.pin} />
       )}
@@ -107,6 +119,36 @@ export function NoteCard({ note, theme, grid, onPress, onLongPress }: Props) {
           <Text style={[styles.progressLabel, { color: theme.textTertiary }]}>
             {progress.done}/{progress.total}
           </Text>
+        </View>
+      )}
+
+      {(note.reminderAt !== null || note.voice.length > 0) && (
+        <View style={styles.metaRow}>
+          {note.reminderAt !== null && (
+            <View style={[styles.metaChip, { backgroundColor: theme.dark ? '#00000040' : '#00000010' }]}>
+              <Ionicons
+                name="alarm-outline"
+                size={12}
+                color={note.reminderAt < Date.now() ? theme.danger : theme.textSecondary}
+              />
+              <Text
+                style={[
+                  styles.metaText,
+                  { color: note.reminderAt < Date.now() ? theme.danger : theme.textSecondary },
+                ]}
+              >
+                {formatReminderTime(note.reminderAt)}
+              </Text>
+            </View>
+          )}
+          {note.voice.length > 0 && (
+            <View style={[styles.metaChip, { backgroundColor: theme.dark ? '#00000040' : '#00000010' }]}>
+              <Ionicons name="mic" size={12} color={theme.textSecondary} />
+              <Text style={[styles.metaText, { color: theme.textSecondary }]}>
+                {note.voice.length}
+              </Text>
+            </View>
+          )}
         </View>
       )}
 
@@ -191,5 +233,48 @@ const styles = StyleSheet.create({
   tags: {
     fontSize: 12,
     marginTop: 2,
+  },
+  imageWrap: {
+    marginTop: -14,
+    marginHorizontal: -14,
+    marginBottom: 4,
+  },
+  image: {
+    width: '100%',
+    height: 110,
+    borderTopLeftRadius: 13,
+    borderTopRightRadius: 13,
+  },
+  imageCount: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    backgroundColor: '#000000A0',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  imageCountText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 2,
+  },
+  metaChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+  },
+  metaText: {
+    fontSize: 11,
+    fontWeight: '500',
   },
 });
