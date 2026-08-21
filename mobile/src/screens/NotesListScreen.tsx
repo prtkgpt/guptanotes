@@ -184,7 +184,7 @@ export function NotesListScreen({ onOpenNote, onCreateNote }: Props) {
     <View style={[styles.container, { backgroundColor: theme.background, paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.appTitle, { color: theme.text }]}>Gupta Notes</Text>
+        <Text style={[styles.appTitle, { color: theme.text }]}>Paperbark</Text>
         <View style={styles.headerActions}>
           {syncConfigured && (
             <TouchableOpacity onPress={() => setShowSync(true)} hitSlop={8}>

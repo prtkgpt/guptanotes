@@ -53,7 +53,7 @@ async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
 function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (!dbPromise) {
     dbPromise = (async () => {
-      const db = await SQLite.openDatabaseAsync('guptanotes.db');
+      const db = await SQLite.openDatabaseAsync('paperbark.db');
       await db.execAsync('PRAGMA journal_mode = WAL;');
       await migrate(db);
       return db;

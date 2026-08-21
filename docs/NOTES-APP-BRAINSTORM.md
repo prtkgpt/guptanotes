@@ -1,4 +1,4 @@
-# Gupta Notes — Feature Brainstorm & Design Inspiration
+# Paperbark — Feature Brainstorm & Design Inspiration
 
 Research notes behind the mobile app in `mobile/`. Sources: 2026 roundups and reviews of
 top-rated note apps (Zapier, NoteApps.info, ClickUp, app store listings for Apple Notes,

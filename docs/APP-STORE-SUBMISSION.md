@@ -1,13 +1,16 @@
-# Submitting Gupta Notes to the App Store & Google Play
+# Submitting Paperbark to the App Store & Google Play
 
 Step-by-step guide for shipping `mobile/` to both stores using Expo's EAS (Expo
 Application Services) — the standard path for Expo apps, with cloud builds so you
 don't need a Mac for the iOS build.
 
-> **Do the rebrand first.** The iOS bundle identifier and Android package name
-> become permanent once you first submit. Pick the final app name, then update
-> `mobile/app.json`: `name`, `slug`, `ios.bundleIdentifier`,
-> `android.package`, and the icons in `mobile/assets/` before step 3.
+> **Branding is locked in:** the app is **Paperbark**, bundle identifier / package
+> name `org.prateekgupta.paperbark` (permanent once first submitted). One store
+> wrinkle: an unrelated game already holds the exact name "Paperbark" on the
+> App Store, and Apple requires exact-name uniqueness — so use **"Paperbark
+> Notes"** (or "Paperbark — Notes") as the App Store *listing* name in App Store
+> Connect. The name under the icon on the home screen stays **Paperbark**
+> (set by `name` in app.json), and Google Play can use plain "Paperbark".
 
 ## 0. Costs & accounts (one-time setup)
 
@@ -31,11 +34,11 @@ eas init            # links the project to your Expo account
 eas build:configure # creates eas.json with development/preview/production profiles
 ```
 
-Checklist in `app.json` before building:
-- `name` — the display name under the icon (final branding!)
-- `version` — start at `1.0.0`
-- `ios.bundleIdentifier` / `android.package` — reverse-DNS, e.g. `org.prateekgupta.<appname>` (permanent after first submission)
-- Icons: replace `assets/icon.png` (1024×1024, no transparency for iOS) and the Android adaptive icon layers
+Checklist in `app.json` before building (already done for Paperbark):
+- `name: "Paperbark"` — the display name under the icon ✓
+- `version` — start at `1.0.0` ✓
+- `ios.bundleIdentifier` / `android.package` — `org.prateekgupta.paperbark` ✓ (permanent after first submission)
+- Icons: `assets/icon.png` (1024×1024, opaque) and the Android adaptive icon layers carry the Paperbark peeling-sheets mark ✓
 - `ios.supportsTablet` — keep `true` only if you'll also provide iPad screenshots; set `false` to skip the iPad review surface
 
 Also add `"buildNumber"` (iOS) and `"versionCode"` (Android) auto-increment by

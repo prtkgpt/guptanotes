@@ -1,4 +1,4 @@
--- Schema for the Gupta Notes mobile app's optional sync.
+-- Schema for the Paperbark mobile app's optional sync.
 -- Run this in the Supabase SQL Editor (same project as the web app is fine —
 -- it uses its own table and doesn't touch the web app's tables).
 

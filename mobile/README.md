@@ -1,6 +1,7 @@
-# Gupta Notes — Mobile
+# Paperbark
 
 A fast, local-first note-taking app for **iPhone and Android**, built with React Native + Expo.
+Named after the paperbark tree, whose bark peels into natural sheets of paper.
 Design and features are inspired by the best-rated note apps: Google Keep's frictionless
 capture and color-coded cards, Bear's inline `#hashtag` tags and minimalist editor, Apple
 Notes' pin/archive/search organization, and Obsidian's local-first data ownership.
