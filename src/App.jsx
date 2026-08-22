@@ -5,6 +5,7 @@ import AppLayout from './components/AppLayout';
 import Timeline from './pages/Timeline';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import PaperbarkPrivacy from './pages/PaperbarkPrivacy';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/privacy" element={<PaperbarkPrivacy />} />
           <Route
             path="/"
             element={
