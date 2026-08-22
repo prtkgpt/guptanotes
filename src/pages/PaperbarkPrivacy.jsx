@@ -61,8 +61,11 @@ export default function PaperbarkPrivacy() {
             <p>
               Notes you delete from the Trash are permanently removed from your device,
               and the deletion is propagated to the sync database if sync is on. To delete
-              your sync account and all synced data, contact us at the address below and
-              we will remove it.
+              your sync account and all synced data, follow the steps at{' '}
+              <a href="/delete-account" className="text-[#c2610c] underline">
+                guptanotes.com/delete-account
+              </a>
+              .
             </p>
           </section>
 

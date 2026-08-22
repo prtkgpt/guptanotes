@@ -39,14 +39,22 @@ Then scan the QR code with the **Expo Go** app ([iOS](https://apps.apple.com/app
 > Android — use a development build (`npx expo run:android` or an EAS dev build)
 > to test them there. Everything else works in Expo Go.
 
-### Optional: enable sync
+### Sync
 
-1. Run `supabase/mobile_notes_schema.sql` (repo root) in your Supabase project's SQL editor — the same project the web app uses is fine.
-2. `cp .env.example .env` and fill in `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
-3. Restart `expo start`. A cloud icon appears in the header for sign-in and manual sync; the app also syncs automatically shortly after launch when signed in.
+Sync ships enabled: `mobile/.env` (local dev) and the `env` blocks in
+`mobile/eas.json` (EAS builds) point at the same Supabase project as the web app.
+The anon key is a public client key — data access is enforced by RLS. One-time
+server setup: run `supabase/mobile_notes_schema.sql` (repo root) in the Supabase
+SQL editor. A cloud icon in the header opens sign-in and manual sync; the app also
+syncs automatically shortly after launch when signed in, and remains fully usable
+offline or signed out.
 
 Notes sync (title, text, checklists, color, pin, status, reminder time). Images and
 voice recordings stay on-device in v1.
+
+> Free-tier Supabase projects pause after ~1 week without API activity, which makes
+> sync (and the web app) fail until restored from the dashboard. For a public store
+> release, consider the Pro tier.
 
 To produce store-ready binaries, use [EAS Build](https://docs.expo.dev/build/introduction/):
 
