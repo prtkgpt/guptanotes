@@ -31,6 +31,7 @@ export function SyncSheet({ visible, onClose }: Props) {
     syncNow,
     signIn,
     signUp,
+    resetPassword,
     signOut,
   } = useNotes();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
@@ -39,6 +40,25 @@ export function SyncSheet({ visible, onClose }: Props) {
   const [busy, setBusy] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  const forgotPassword = async () => {
+    if (!email.trim()) {
+      setAuthError('Enter your email above first, then tap "Forgot password?" again.');
+      return;
+    }
+    setBusy(true);
+    setAuthError(null);
+    setInfo(null);
+    const error = await resetPassword(email.trim());
+    setBusy(false);
+    if (error) {
+      setAuthError(error);
+    } else {
+      setInfo(
+        `Reset link sent to ${email.trim()}. Open it, choose a new password, then sign in here.`,
+      );
+    }
+  };
 
   const submit = async () => {
     if (!email.trim() || !password) {
@@ -135,6 +155,13 @@ export function SyncSheet({ visible, onClose }: Props) {
                   </Text>
                 )}
               </TouchableOpacity>
+              {mode === 'signin' && (
+                <TouchableOpacity onPress={forgotPassword} disabled={busy}>
+                  <Text style={[styles.switchText, { color: theme.textSecondary }]}>
+                    Forgot password?
+                  </Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 onPress={() => {
                   setMode(mode === 'signin' ? 'signup' : 'signin');
