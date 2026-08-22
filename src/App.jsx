@@ -9,6 +9,7 @@ import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PaperbarkPrivacy from './pages/PaperbarkPrivacy';
+import DeleteAccount from './pages/DeleteAccount';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PaperbarkPrivacy />} />
+          <Route path="/delete-account" element={<DeleteAccount />} />
           <Route
             path="/app"
             element={
