@@ -1,0 +1,24 @@
+Paperbark is a fast, private place for your thoughts — named after the tree whose bark peels into natural sheets of paper.
+
+Open the app, tap +, and start typing. Everything saves as you write, and empty notes clean themselves up. No account, no setup, no save button.
+
+CAPTURE ANYTHING
+• Notes and checklists — turn any note into a checklist and back, with progress shown on the card
+• Photos — attach from your camera or library
+• Voice memos — record right inside a note and play them back in place
+• Reminders — schedule a notification for any note; tap it to jump straight back in
+
+STAY ORGANIZED
+• Type #tags anywhere in a note — they become filter chips automatically
+• Pin what matters, archive what's done, and restore anything from the Trash
+• 9 warm paper-tint colors to tell notes apart at a glance
+• Instant search across titles, text, checklists, and tags
+• Grid or list view, sorted by last edited, newest, or A–Z
+
+YOURS, BY DEFAULT
+• All notes are stored on your device and work fully offline
+• No ads, no tracking, no analytics
+• Light and dark themes that follow your system
+• Optional sync: create a free account to back up your notes and keep them in sync across devices — entirely opt-in
+
+Paperbark is for quick thoughts, grocery runs, meeting scraps, packing lists, and the ideas that show up at the wrong time. Write it down before it peels away.
