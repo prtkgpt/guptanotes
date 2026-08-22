@@ -53,6 +53,7 @@ interface NotesContextValue {
   syncNow: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (email: string, password: string) => Promise<string | null>;
+  resetPassword: (email: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 }
 
@@ -332,6 +333,15 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
     return error ? error.message : null;
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    if (!supabase) return 'Sync is not configured';
+    // The reset link opens the web app's reset page; the new password then works here.
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://www.guptanotes.com/reset-password',
+    });
+    return error ? error.message : null;
+  }, []);
+
   const signOut = useCallback(async () => {
     if (!supabase) return;
     await supabase.auth.signOut();
@@ -385,6 +395,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       syncNow,
       signIn,
       signUp,
+      resetPassword,
       signOut,
     }),
     [
@@ -412,6 +423,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       syncNow,
       signIn,
       signUp,
+      resetPassword,
       signOut,
     ],
   );
