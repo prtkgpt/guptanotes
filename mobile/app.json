@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Paperbark",
+    "slug": "paperbark",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.prateekgupta.paperbark",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "org.prateekgupta.paperbark",
+      "adaptiveIcon": {
+        "backgroundColor": "#FAF8F5",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow Paperbark to use the microphone to record voice notes."
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Paperbark to access your photos to attach images to notes.",
+          "cameraPermission": "Allow Paperbark to use the camera to attach photos to notes."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "reminders"
+        }
+      ]
+    ]
+  }
+}
