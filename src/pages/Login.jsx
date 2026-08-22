@@ -16,7 +16,7 @@ export default function Login() {
     setLoading(true);
     try {
       await signIn(email, password);
-      navigate('/');
+      navigate('/app');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -62,7 +62,12 @@ export default function Login() {
             {loading ? 'Logging in...' : 'Log in'}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-3 text-center text-sm">
+          <Link to="/forgot-password" className="text-gray-500 hover:text-black hover:underline">
+            Forgot password?
+          </Link>
+        </p>
+        <p className="mt-2 text-center text-sm text-gray-500">
           Don&apos;t have an account?{' '}
           <Link to="/signup" className="text-black font-medium hover:underline">
             Sign up
